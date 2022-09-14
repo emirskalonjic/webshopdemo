@@ -1,0 +1,24 @@
+{
+  "name": "webshopdemo",
+  "version": "1.0.0",
+  "description": "Web Shop Demo",
+  "main": "app.js",
+  "scripts": {
+    "start:build": "tsc -w",
+    "start:run": "nodemon dist/app.js",
+    "start": "concurrently npm:start:*"
+  },
+  "keywords": [],
+  "author": "Emir Skalonjic",
+  "license": "Symphony license",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.2",
+    "express": "^4.18.1",
+    "express-graphql": "^0.12.0",
+    "graphql": "^16.6.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13"
+  }
+}
