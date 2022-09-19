@@ -26,8 +26,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const OrderSchema = new mongoose_1.Schema({
     uid: { type: String, required: true },
-    user: { type: String, required: true },
-    cart: { type: String, required: true },
+    userId: { type: String, required: true },
+    cartId: { type: String, required: true },
     date: { type: String, required: true }
+}, {
+    versionKey: false
 });
 exports.default = mongoose_1.default.model('Order', OrderSchema);

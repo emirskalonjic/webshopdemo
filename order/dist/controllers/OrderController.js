@@ -29,6 +29,15 @@ class OrderController {
                 console.log(error);
             }
         });
+        this.createOrder = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                const order = yield this.orderService.createOrder(req.body);
+                res.status(200).json({ order });
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
         this.orderService = orderService;
     }
 }

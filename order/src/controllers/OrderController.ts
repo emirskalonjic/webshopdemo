@@ -29,6 +29,16 @@ class OrderController {
             console.log(error);
         }
     }
+
+    public createOrder = async(req: Request, res: Response) => {
+        try {
+            const order: IOrder = await this.orderService.createOrder(req.body);
+
+            res.status(200).json({ order });
+        } catch (error) {
+            console.log(error);
+        }
+    }
 }
 
 export default OrderController

@@ -1,5 +1,6 @@
-import Cart, { ICart } from '../models/cart';
 import mongoose from 'mongoose';
+import Cart, { ICart } from '../models/cart';
+import Producer from '../rabbitMQ/Producer';
 
 class CartService {
 
@@ -68,7 +69,31 @@ class CartService {
                     date: input.date
                 });
     
-                cart.save();
+                const newCart: ICart = await cart.save();
+                
+                // RabbitMQ Producer
+                if (newCart) {
+                    const producer: Producer = new Producer();
+                    const queueName = "webshopdemo_queue";
+                    const message = JSON.stringify(newCart);
+
+                    const connection = await producer.createConnection();
+                    
+                    if (connection) {
+                        
+                        const channel = await producer.createChannel();
+                        
+                        if (channel != null) {
+                            
+                            await producer.createQueue(queueName);
+                            const status: boolean = producer.sendMessage(queueName, message);
+        
+                            if (status) {
+                                console.log("message sent: " + message);
+                            }
+                        }
+                    }
+                }
     
                 return cart;
             }

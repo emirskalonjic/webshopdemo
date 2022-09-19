@@ -11,4 +11,5 @@ const orderService = new OrderService_1.default();
 const orderController = new OrderController_1.default(orderService);
 router.get('/order/:id', orderController.orderDetails);
 router.get('/orders/', orderController.orderList);
+router.post('/order', orderController.createOrder);
 exports.default = router;

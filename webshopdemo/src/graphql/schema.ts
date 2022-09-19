@@ -32,6 +32,7 @@ const schemaProduct = buildSchema(`
         _id: Int!
         uid: Int!
         userId: Int!
+        cartId: Int!
         cart: Cart
         date: String!
     }

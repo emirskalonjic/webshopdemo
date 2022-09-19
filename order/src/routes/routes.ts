@@ -8,5 +8,6 @@ const orderController = new OrderController(orderService);
 
 router.get('/order/:id', orderController.orderDetails);
 router.get('/orders/', orderController.orderList);
+router.post('/order', orderController.createOrder);
 
 export default router

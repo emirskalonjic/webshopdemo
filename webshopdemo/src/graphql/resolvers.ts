@@ -11,8 +11,6 @@ type CartInput = {
     date: string
 }
 
-//type CartInput = Pick<Cart, "uid" | "userId">
-
 type Product = {
     _id: number
     uid: number

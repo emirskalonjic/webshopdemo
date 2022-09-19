@@ -33,6 +33,7 @@ const schemaProduct = (0, graphql_1.buildSchema)(`
         _id: Int!
         uid: Int!
         userId: Int!
+        cartId: Int!
         cart: Cart
         date: String!
     }
