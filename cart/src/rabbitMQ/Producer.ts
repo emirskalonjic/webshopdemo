@@ -31,7 +31,7 @@ class Producer {
             this.channel = await this.connection.createChannel();
             this.channel.assertQueue(this.queueName, { durable: true });
 
-            console.log('Producer Connection to RabbitMQ established');
+            console.log("Producer Connection to RabbitMQ established");
         } catch (error) {
             console.log(error);
         }

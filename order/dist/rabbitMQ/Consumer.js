@@ -42,6 +42,9 @@ class Consumer {
         dotenv.config();
         Consumer.createConnection();
     }
+    static setOrderServis(orderServis) {
+        this.orderService = orderServis;
+    }
     static getInstance() {
         if (!Consumer.instance) {
             Consumer.instance = new Consumer();
@@ -56,7 +59,9 @@ class Consumer {
                 this.connection = yield amqplib_1.default.connect(this.rabbitmqUrl);
                 this.channel = yield this.connection.createChannel();
                 this.channel.assertQueue(this.queueName, { durable: true });
-                console.log('Consumer Connection to RabbitMQ established');
+                console.log("Consumer Connection to RabbitMQ established");
+                this.consumeMessage();
+                console.log("Consumer start consuming the messages...");
             }
             catch (error) {
                 console.log(error);
@@ -68,7 +73,7 @@ class Consumer {
         const checkChannel = (!this.channel || this.channel === undefined) ? false : true;
         return checkConnection && checkChannel;
     }
-    static consumeMessage(orderService) {
+    static consumeMessage() {
         return __awaiter(this, void 0, void 0, function* () {
             let results = [];
             try {
@@ -80,7 +85,7 @@ class Consumer {
                         // Create order
                         const cart = JSON.parse(content);
                         if (cart) {
-                            orderService.createOrder(cart);
+                            this.orderService.createOrder(cart);
                         }
                         channel.ack(message);
                     }

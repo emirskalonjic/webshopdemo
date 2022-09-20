@@ -1,12 +1,14 @@
 import * as dotenv from 'dotenv';
 import client, { Connection, Channel, ConsumeMessage } from 'amqplib';
 import OrderService from '../services/OrderService';
+import order from '../models/order';
 
 class Consumer {
 
     private static instance: Consumer;
     private static connection: Connection;
     private static channel: Channel;
+    private static orderService: OrderService;
 
     private static rabbitmqUrl: string = "";
     private static queueName: string = "";
@@ -15,6 +17,10 @@ class Consumer {
         dotenv.config();
         Consumer.createConnection();
     }
+
+    public static setOrderServis(orderServis: OrderService) {
+        this.orderService = orderServis;
+    } 
 
     public static getInstance(): Consumer {
         if (!Consumer.instance) {
@@ -32,8 +38,11 @@ class Consumer {
             this.connection = await client.connect(this.rabbitmqUrl);
             this.channel = await this.connection.createChannel();
             this.channel.assertQueue(this.queueName, { durable: true });
+            console.log("Consumer Connection to RabbitMQ established");
 
-            console.log('Consumer Connection to RabbitMQ established');
+            this.consumeMessage();
+            console.log("Consumer start consuming the messages...");
+
         } catch (error) {
             console.log(error);
         }
@@ -46,11 +55,11 @@ class Consumer {
         return checkConnection && checkChannel;
     }
 
-    public static async consumeMessage(orderService: OrderService) {
+    public static async consumeMessage() {
         
         let results: string[] = [];
 
-        try{
+        try {
 
             const consumer = (channel: Channel) => (message: ConsumeMessage | null) => {
                 if (message) {
@@ -62,7 +71,7 @@ class Consumer {
                     // Create order
                     const cart = JSON.parse(content);
                     if (cart) {
-                        orderService.createOrder(cart);
+                        this.orderService.createOrder(cart);
                     }
 
                     channel.ack(message);

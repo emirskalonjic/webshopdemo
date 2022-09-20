@@ -43,6 +43,7 @@ class OrderService {
     constructor() {
         dotenv.config();
         Consumer_1.default.getInstance();
+        Consumer_1.default.setOrderServis(this);
     }
     getOrderById(id) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -60,8 +61,6 @@ class OrderService {
     }
     getOrderList() {
         return __awaiter(this, void 0, void 0, function* () {
-            // RabbitMQ Consumer
-            yield Consumer_1.default.consumeMessage(this);
             try {
                 if (mongoose_1.default.connection.readyState == 1) {
                     const orders = yield order_1.default.find();

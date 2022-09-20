@@ -56,7 +56,7 @@ class Producer {
                 this.connection = yield amqplib_1.default.connect(this.rabbitmqUrl);
                 this.channel = yield this.connection.createChannel();
                 this.channel.assertQueue(this.queueName, { durable: true });
-                console.log('Producer Connection to RabbitMQ established');
+                console.log("Producer Connection to RabbitMQ established");
             }
             catch (error) {
                 console.log(error);
