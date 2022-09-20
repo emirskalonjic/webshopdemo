@@ -43,11 +43,17 @@ class Consumer {
         dotenv.config();
         this.rabbitmqUrl = process.env.RABBITMQ_URL;
     }
+    checkConnection() {
+        return (!this.connection || this.connection === undefined || this.connection.connection === undefined) ? false : true;
+    }
     createConnection() {
         return __awaiter(this, void 0, void 0, function* () {
             this.connection = yield amqplib_1.default.connect(this.rabbitmqUrl);
             return this.connection;
         });
+    }
+    checkChannel() {
+        return (!this.channel || this.channel === undefined) ? false : true;
     }
     createChannel() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -57,16 +63,17 @@ class Consumer {
     }
     createQueue(queueName) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.queue = yield this.channel.assertQueue(queueName);
+            this.queue = yield this.channel.assertQueue(queueName, { durable: true });
         });
     }
     consumeMessage(queueName) {
         return __awaiter(this, void 0, void 0, function* () {
-            let result = "";
+            let result = [];
             const consumer = (channel) => (message) => {
                 if (message) {
+                    const content = message.content.toString();
+                    result.push(content);
                     channel.ack(message);
-                    result = message.content.toString();
                 }
             };
             yield this.channel.consume(queueName, consumer(this.channel));

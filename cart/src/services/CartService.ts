@@ -1,8 +1,16 @@
+import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import Cart, { ICart } from '../models/cart';
 import Producer from '../rabbitMQ/Producer';
 
 class CartService {
+
+    public producer: Producer;
+
+    constructor() {
+        dotenv.config();
+        this.producer = new Producer();
+    }
 
     public async getCartById(id: string): Promise<ICart> {
 
@@ -73,23 +81,27 @@ class CartService {
                 
                 // RabbitMQ Producer
                 if (newCart) {
-                    const producer: Producer = new Producer();
-                    const queueName = "webshopdemo_queue";
+                    
+                    const queueName: string = process.env.QUEUE_NAME!;
                     const message = JSON.stringify(newCart);
 
-                    const connection = await producer.createConnection();
+                    if (!this.producer.checkConnection()) {
+                        await this.producer.createConnection();
+                    } 
                     
-                    if (connection) {
-                        
-                        const channel = await producer.createChannel();
-                        
-                        if (channel != null) {
+                    if (this.producer.checkConnection()) {
+
+                        if (!this.producer.checkChannel()) {
+                            await this.producer.createChannel();
+                        }
+
+                        if (this.producer.checkChannel()) {
                             
-                            await producer.createQueue(queueName);
-                            const status: boolean = producer.sendMessage(queueName, message);
+                            await this.producer.createQueue(queueName);
+                            const status: boolean = this.producer.sendMessage(queueName, message);
         
                             if (status) {
-                                console.log("message sent: " + message);
+                                console.log("Message sent: " + message);
                             }
                         }
                     }

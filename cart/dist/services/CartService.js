@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -12,10 +35,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const dotenv = __importStar(require("dotenv"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const cart_1 = __importDefault(require("../models/cart"));
 const Producer_1 = __importDefault(require("../rabbitMQ/Producer"));
 class CartService {
+    constructor() {
+        dotenv.config();
+        this.producer = new Producer_1.default();
+    }
     getCartById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -73,17 +101,20 @@ class CartService {
                     const newCart = yield cart.save();
                     // RabbitMQ Producer
                     if (newCart) {
-                        const producer = new Producer_1.default();
-                        const queueName = "webshopdemo_queue";
+                        const queueName = process.env.QUEUE_NAME;
                         const message = JSON.stringify(newCart);
-                        const connection = yield producer.createConnection();
-                        if (connection) {
-                            const channel = yield producer.createChannel();
-                            if (channel != null) {
-                                yield producer.createQueue(queueName);
-                                const status = producer.sendMessage(queueName, message);
+                        if (!this.producer.checkConnection()) {
+                            yield this.producer.createConnection();
+                        }
+                        if (this.producer.checkConnection()) {
+                            if (!this.producer.checkChannel()) {
+                                yield this.producer.createChannel();
+                            }
+                            if (this.producer.checkChannel()) {
+                                yield this.producer.createQueue(queueName);
+                                const status = this.producer.sendMessage(queueName, message);
                                 if (status) {
-                                    console.log("message sent: " + message);
+                                    console.log("Message sent: " + message);
                                 }
                             }
                         }

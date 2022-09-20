@@ -1,8 +1,16 @@
+import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import Order, { IOrder } from '../models/order';
 import Consumer from '../rabbitMQ/Consumer';
 
 class OrderService {
+
+    public consumer: Consumer;
+
+    constructor() {
+        dotenv.config();
+        this.consumer = new Consumer();
+    }
 
     public async getOrderById(id: string): Promise<IOrder> {
 
@@ -24,27 +32,29 @@ class OrderService {
     public async getOrderList(): Promise<IOrder[]> {
 
         // RabitMQ Consumer
-        const consumer: Consumer = new Consumer();
-        const queueName = "webshopdemo_queue";
+        const queueName: string = process.env.QUEUE_NAME!;
 
-        const connection = await consumer.createConnection();
+        if (!this.consumer.checkConnection()) {
+            await this.consumer.createConnection();
+        }
         
-        if (connection) {
-            
-            const channel = await consumer.createChannel();
-            
-            if (channel != null) {
-                
-                await consumer.createQueue(queueName);
-                const message = await consumer.consumeMessage(queueName);
+        if (this.consumer.checkConnection()) {
 
-                if (message) {
-                    const cart = JSON.parse(message);
-                    
+            if (!this.consumer.checkChannel()) {
+                await this.consumer.createChannel();
+            }
+            
+            if (this.consumer.checkChannel()) {
+                
+                await this.consumer.createQueue(queueName);
+                const message: string[] = await this.consumer.consumeMessage(queueName);
+
+                message.forEach(msg => {
+                    const cart = JSON.parse(msg);
                     if (cart) {
                         this.createOrder(cart);
                     }
-                }
+                });
             }
         }
 

@@ -14,6 +14,10 @@ class Consumer {
         this.rabbitmqUrl = process.env.RABBITMQ_URL!;
     }
 
+    public checkConnection() {
+        return (!this.connection || this.connection === undefined || this.connection.connection === undefined) ? false : true;
+    }
+
     public async createConnection(): Promise<Connection> {
 
         this.connection = await client.connect(this.rabbitmqUrl);
@@ -21,6 +25,10 @@ class Consumer {
         return this.connection;
     }
     
+    public checkChannel() {
+        return (!this.channel || this.channel === undefined) ? false : true;
+    }
+
     public async createChannel(): Promise<Channel> {
 
         this.channel = await this.connection.createChannel();
@@ -29,16 +37,18 @@ class Consumer {
     }
 
     public async createQueue(queueName: string) {
-        this.queue = await this.channel.assertQueue(queueName);
+        this.queue = await this.channel.assertQueue(queueName, { durable: true });
     }
 
     public async consumeMessage(queueName: string) {
-        let result = "";
+        let result: string[] = [];
         const consumer = (channel: Channel) => (message: ConsumeMessage | null) => {
             if (message) {
 
+                const content = message.content.toString();
+                result.push(content);
+
                 channel.ack(message);
-                result = message.content.toString();
             }
         }
 

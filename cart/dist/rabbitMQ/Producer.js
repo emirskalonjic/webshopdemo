@@ -43,11 +43,17 @@ class Producer {
         dotenv.config();
         this.rabbitmqUrl = process.env.RABBITMQ_URL;
     }
+    checkConnection() {
+        return (!this.connection || this.connection === undefined || this.connection.connection === undefined) ? false : true;
+    }
     createConnection() {
         return __awaiter(this, void 0, void 0, function* () {
             this.connection = yield amqplib_1.default.connect(this.rabbitmqUrl);
             return this.connection;
         });
+    }
+    checkChannel() {
+        return (!this.channel || this.channel === undefined) ? false : true;
     }
     createChannel() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -57,16 +63,12 @@ class Producer {
     }
     createQueue(queueName) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.queue = yield this.channel.assertQueue(queueName);
+            this.queue = yield this.channel.assertQueue(queueName, { durable: true });
         });
     }
     sendMessage(queueName, message) {
         const sendReport = this.channel.sendToQueue(queueName, Buffer.from(message));
         return sendReport;
-    }
-    dispose() {
-        this.channel.close();
-        this.connection.close();
     }
 }
 exports.default = Producer;

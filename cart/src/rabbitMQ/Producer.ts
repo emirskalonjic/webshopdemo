@@ -14,6 +14,10 @@ class Producer {
         this.rabbitmqUrl = process.env.RABBITMQ_URL!;
     }
 
+    public checkConnection() {
+        return (!this.connection || this.connection === undefined || this.connection.connection === undefined) ? false : true;
+    }
+
     public async createConnection(): Promise<Connection> {
 
         this.connection = await client.connect(this.rabbitmqUrl);
@@ -21,26 +25,24 @@ class Producer {
         return this.connection;
     }
     
-    public async createChannel(): Promise<Channel> {
+    public checkChannel() {
+        return (!this.channel || this.channel === undefined) ? false : true;
+    }
 
+    public async createChannel(): Promise<Channel> {
         this.channel = await this.connection.createChannel();
 
         return this.channel;
     }
 
     public async createQueue(queueName: string) {
-        this.queue = await this.channel.assertQueue(queueName);
+        this.queue = await this.channel.assertQueue(queueName, { durable: true });
     }
 
     public sendMessage(queueName: string, message: string): boolean {
         const sendReport: boolean = this.channel.sendToQueue(queueName, Buffer.from(message));
 
         return sendReport
-    }
-
-    public dispose() {
-        this.channel.close();
-        this.connection.close();
     }
 }
 

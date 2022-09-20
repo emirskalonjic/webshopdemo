@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -12,10 +35,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const dotenv = __importStar(require("dotenv"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const order_1 = __importDefault(require("../models/order"));
 const Consumer_1 = __importDefault(require("../rabbitMQ/Consumer"));
 class OrderService {
+    constructor() {
+        dotenv.config();
+        this.consumer = new Consumer_1.default();
+    }
     getOrderById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -33,20 +61,23 @@ class OrderService {
     getOrderList() {
         return __awaiter(this, void 0, void 0, function* () {
             // RabitMQ Consumer
-            const consumer = new Consumer_1.default();
-            const queueName = "webshopdemo_queue";
-            const connection = yield consumer.createConnection();
-            if (connection) {
-                const channel = yield consumer.createChannel();
-                if (channel != null) {
-                    yield consumer.createQueue(queueName);
-                    const message = yield consumer.consumeMessage(queueName);
-                    if (message) {
-                        const cart = JSON.parse(message);
+            const queueName = process.env.QUEUE_NAME;
+            if (!this.consumer.checkConnection()) {
+                yield this.consumer.createConnection();
+            }
+            if (this.consumer.checkConnection()) {
+                if (!this.consumer.checkChannel()) {
+                    yield this.consumer.createChannel();
+                }
+                if (this.consumer.checkChannel()) {
+                    yield this.consumer.createQueue(queueName);
+                    const message = yield this.consumer.consumeMessage(queueName);
+                    message.forEach(msg => {
+                        const cart = JSON.parse(msg);
                         if (cart) {
                             this.createOrder(cart);
                         }
-                    }
+                    });
                 }
             }
             try {
