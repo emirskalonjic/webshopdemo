@@ -5,11 +5,9 @@ import Consumer from '../rabbitMQ/Consumer';
 
 class OrderService {
 
-    public consumer: Consumer;
-
     constructor() {
         dotenv.config();
-        this.consumer = new Consumer();
+        Consumer.getInstance();
     }
 
     public async getOrderById(id: string): Promise<IOrder> {
@@ -31,32 +29,8 @@ class OrderService {
 
     public async getOrderList(): Promise<IOrder[]> {
 
-        // RabitMQ Consumer
-        const queueName: string = process.env.QUEUE_NAME!;
-
-        if (!this.consumer.checkConnection()) {
-            await this.consumer.createConnection();
-        }
-        
-        if (this.consumer.checkConnection()) {
-
-            if (!this.consumer.checkChannel()) {
-                await this.consumer.createChannel();
-            }
-            
-            if (this.consumer.checkChannel()) {
-                
-                await this.consumer.createQueue(queueName);
-                const message: string[] = await this.consumer.consumeMessage(queueName);
-
-                message.forEach(msg => {
-                    const cart = JSON.parse(msg);
-                    if (cart) {
-                        this.createOrder(cart);
-                    }
-                });
-            }
-        }
+        // RabbitMQ Consumer
+        await Consumer.consumeMessage(this); 
 
         try {
 

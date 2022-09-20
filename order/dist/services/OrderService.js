@@ -42,7 +42,7 @@ const Consumer_1 = __importDefault(require("../rabbitMQ/Consumer"));
 class OrderService {
     constructor() {
         dotenv.config();
-        this.consumer = new Consumer_1.default();
+        Consumer_1.default.getInstance();
     }
     getOrderById(id) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -60,26 +60,8 @@ class OrderService {
     }
     getOrderList() {
         return __awaiter(this, void 0, void 0, function* () {
-            // RabitMQ Consumer
-            const queueName = process.env.QUEUE_NAME;
-            if (!this.consumer.checkConnection()) {
-                yield this.consumer.createConnection();
-            }
-            if (this.consumer.checkConnection()) {
-                if (!this.consumer.checkChannel()) {
-                    yield this.consumer.createChannel();
-                }
-                if (this.consumer.checkChannel()) {
-                    yield this.consumer.createQueue(queueName);
-                    const message = yield this.consumer.consumeMessage(queueName);
-                    message.forEach(msg => {
-                        const cart = JSON.parse(msg);
-                        if (cart) {
-                            this.createOrder(cart);
-                        }
-                    });
-                }
-            }
+            // RabbitMQ Consumer
+            yield Consumer_1.default.consumeMessage(this);
             try {
                 if (mongoose_1.default.connection.readyState == 1) {
                     const orders = yield order_1.default.find();

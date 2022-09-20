@@ -42,7 +42,7 @@ const Producer_1 = __importDefault(require("../rabbitMQ/Producer"));
 class CartService {
     constructor() {
         dotenv.config();
-        this.producer = new Producer_1.default();
+        Producer_1.default.getInstance();
     }
     getCartById(id) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -101,22 +101,10 @@ class CartService {
                     const newCart = yield cart.save();
                     // RabbitMQ Producer
                     if (newCart) {
-                        const queueName = process.env.QUEUE_NAME;
                         const message = JSON.stringify(newCart);
-                        if (!this.producer.checkConnection()) {
-                            yield this.producer.createConnection();
-                        }
-                        if (this.producer.checkConnection()) {
-                            if (!this.producer.checkChannel()) {
-                                yield this.producer.createChannel();
-                            }
-                            if (this.producer.checkChannel()) {
-                                yield this.producer.createQueue(queueName);
-                                const status = this.producer.sendMessage(queueName, message);
-                                if (status) {
-                                    console.log("Message sent: " + message);
-                                }
-                            }
+                        const status = Producer_1.default.sendMessage(message);
+                        if (status) {
+                            console.log("Message sent: " + message);
                         }
                     }
                     return cart;

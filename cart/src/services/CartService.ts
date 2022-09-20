@@ -5,11 +5,9 @@ import Producer from '../rabbitMQ/Producer';
 
 class CartService {
 
-    public producer: Producer;
-
     constructor() {
         dotenv.config();
-        this.producer = new Producer();
+        Producer.getInstance();
     }
 
     public async getCartById(id: string): Promise<ICart> {
@@ -82,28 +80,12 @@ class CartService {
                 // RabbitMQ Producer
                 if (newCart) {
                     
-                    const queueName: string = process.env.QUEUE_NAME!;
                     const message = JSON.stringify(newCart);
 
-                    if (!this.producer.checkConnection()) {
-                        await this.producer.createConnection();
-                    } 
-                    
-                    if (this.producer.checkConnection()) {
+                    const status: boolean = Producer.sendMessage(message);
 
-                        if (!this.producer.checkChannel()) {
-                            await this.producer.createChannel();
-                        }
-
-                        if (this.producer.checkChannel()) {
-                            
-                            await this.producer.createQueue(queueName);
-                            const status: boolean = this.producer.sendMessage(queueName, message);
-        
-                            if (status) {
-                                console.log("Message sent: " + message);
-                            }
-                        }
+                    if (status) {
+                        console.log("Message sent: " + message);
                     }
                 }
     

@@ -39,46 +39,61 @@ const dotenv = __importStar(require("dotenv"));
 const amqplib_1 = __importDefault(require("amqplib"));
 class Consumer {
     constructor() {
-        this.rabbitmqUrl = "";
         dotenv.config();
+        Consumer.createConnection();
+    }
+    static getInstance() {
+        if (!Consumer.instance) {
+            Consumer.instance = new Consumer();
+        }
         this.rabbitmqUrl = process.env.RABBITMQ_URL;
+        this.queueName = process.env.QUEUE_NAME;
+        return Consumer.instance;
     }
-    checkConnection() {
-        return (!this.connection || this.connection === undefined || this.connection.connection === undefined) ? false : true;
-    }
-    createConnection() {
+    static createConnection() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.connection = yield amqplib_1.default.connect(this.rabbitmqUrl);
-            return this.connection;
+            try {
+                this.connection = yield amqplib_1.default.connect(this.rabbitmqUrl);
+                this.channel = yield this.connection.createChannel();
+                this.channel.assertQueue(this.queueName, { durable: true });
+                console.log('Consumer Connection to RabbitMQ established');
+            }
+            catch (error) {
+                console.log(error);
+            }
         });
     }
-    checkChannel() {
-        return (!this.channel || this.channel === undefined) ? false : true;
+    static checkConnection() {
+        const checkConnection = (!this.connection || this.connection === undefined || this.connection.connection === undefined) ? false : true;
+        const checkChannel = (!this.channel || this.channel === undefined) ? false : true;
+        return checkConnection && checkChannel;
     }
-    createChannel() {
+    static consumeMessage(orderService) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.channel = yield this.connection.createChannel();
-            return this.channel;
-        });
-    }
-    createQueue(queueName) {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.queue = yield this.channel.assertQueue(queueName, { durable: true });
-        });
-    }
-    consumeMessage(queueName) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let result = [];
-            const consumer = (channel) => (message) => {
-                if (message) {
-                    const content = message.content.toString();
-                    result.push(content);
-                    channel.ack(message);
-                }
-            };
-            yield this.channel.consume(queueName, consumer(this.channel));
-            return result;
+            let results = [];
+            try {
+                const consumer = (channel) => (message) => {
+                    if (message) {
+                        const content = message.content.toString();
+                        results.push(content);
+                        console.log("Message received: " + content);
+                        // Create order
+                        const cart = JSON.parse(content);
+                        if (cart) {
+                            orderService.createOrder(cart);
+                        }
+                        channel.ack(message);
+                    }
+                };
+                yield this.channel.consume(this.queueName, consumer(this.channel));
+            }
+            catch (error) {
+                console.log(error);
+            }
+            return results;
         });
     }
 }
+Consumer.rabbitmqUrl = "";
+Consumer.queueName = "";
 exports.default = Consumer;

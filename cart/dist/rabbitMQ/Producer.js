@@ -39,36 +39,48 @@ const dotenv = __importStar(require("dotenv"));
 const amqplib_1 = __importDefault(require("amqplib"));
 class Producer {
     constructor() {
-        this.rabbitmqUrl = "";
         dotenv.config();
+        Producer.createConnection();
+    }
+    static getInstance() {
+        if (!Producer.instance) {
+            Producer.instance = new Producer();
+        }
         this.rabbitmqUrl = process.env.RABBITMQ_URL;
+        this.queueName = process.env.QUEUE_NAME;
+        return Producer.instance;
     }
-    checkConnection() {
-        return (!this.connection || this.connection === undefined || this.connection.connection === undefined) ? false : true;
-    }
-    createConnection() {
+    static createConnection() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.connection = yield amqplib_1.default.connect(this.rabbitmqUrl);
-            return this.connection;
+            try {
+                this.connection = yield amqplib_1.default.connect(this.rabbitmqUrl);
+                this.channel = yield this.connection.createChannel();
+                this.channel.assertQueue(this.queueName, { durable: true });
+                console.log('Producer Connection to RabbitMQ established');
+            }
+            catch (error) {
+                console.log(error);
+            }
         });
     }
-    checkChannel() {
-        return (!this.channel || this.channel === undefined) ? false : true;
+    static checkConnection() {
+        const checkConnection = (!this.connection || this.connection === undefined || this.connection.connection === undefined) ? false : true;
+        const checkChannel = (!this.channel || this.channel === undefined) ? false : true;
+        return checkConnection && checkChannel;
     }
-    createChannel() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.channel = yield this.connection.createChannel();
-            return this.channel;
-        });
-    }
-    createQueue(queueName) {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.queue = yield this.channel.assertQueue(queueName, { durable: true });
-        });
-    }
-    sendMessage(queueName, message) {
-        const sendReport = this.channel.sendToQueue(queueName, Buffer.from(message));
-        return sendReport;
+    static sendMessage(message) {
+        try {
+            if (this.checkConnection()) {
+                const sendReport = this.channel.sendToQueue(this.queueName, Buffer.from(message));
+                return sendReport;
+            }
+        }
+        catch (error) {
+            console.log(error);
+        }
+        return false;
     }
 }
+Producer.rabbitmqUrl = "";
+Producer.queueName = "";
 exports.default = Producer;
