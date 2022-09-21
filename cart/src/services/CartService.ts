@@ -7,7 +7,6 @@ class CartService {
 
     constructor() {
         dotenv.config();
-        Producer.getInstance();
     }
 
     public async getCartById(id: string): Promise<ICart> {

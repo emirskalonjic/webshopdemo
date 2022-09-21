@@ -7,8 +7,6 @@ class OrderService {
 
     constructor() {
         dotenv.config();
-        Consumer.getInstance();
-        Consumer.setOrderServis(this);
     }
 
     public async getOrderById(id: string): Promise<IOrder> {

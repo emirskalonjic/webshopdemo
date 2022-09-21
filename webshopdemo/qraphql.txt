@@ -30,7 +30,7 @@
 
 ### Order Queries:
 {
-    "query": "{ getOrder(id: 1) { uid userId cart { uid userId productId product { uid name description price} } date } }"
+    "query": "{ getOrder(id: 1) { uid userId cartId cart { uid userId productId product { uid name description price} } date } }"
 }
 
 ###########################################################
@@ -75,5 +75,5 @@ mutation CreateCart($input: CartInput) {
 
 ### Order Queries:
 {
-	getOrder(id: 1) { uid userId cart { uid userId productId product { uid name description price} } date } 
+	getOrder(id: 1) { uid userId cartId cart { uid userId productId product { uid name description price} } date } 
 }
