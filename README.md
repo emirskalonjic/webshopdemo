@@ -15,14 +15,14 @@ GraphQL examples:
 
 Postman requests (Query):  
 {  
-    "query": "{ getProduct(id: 1) { uid name description price } }"   
-}. 
-{. 
-    "query": "{ getProducts { uid name description price } }". 
-}. 
-{. 
-    "query": "{ getCarts { uid userId productId product { uid name description price } price } }". 
-}.  
+    &emsp;"query": "{ getProduct(id: 1) { uid name description price } }"   
+}  
+{  
+    &emsp;"query": "{ getProducts { uid name description price } }"   
+}    
+{   
+    &emsp;"query": "{ getCarts { uid userId productId product { uid name description price } price } }"  
+}  
 
 Postman requests (Mutation): \
 { \
