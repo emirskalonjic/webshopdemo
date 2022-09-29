@@ -11,7 +11,8 @@ MongoDB,
 GraphQL,  
 RabbitMQ  
 
-GraphQL examples:  
+GraphQL examples: 
+-----------------  
 
 Postman requests (Query):  
 {  
@@ -33,7 +34,7 @@ Postman requests (Mutation):
             &emsp;&emsp;"productId": 3,  
             &emsp;&emsp;"price": 300,  
             &emsp;&emsp;"date": "2022-09-19 10:00:00"  
-        }  
-    }  
+        &emsp;&emsp;}  
+    &emsp;}  
 }  
 
