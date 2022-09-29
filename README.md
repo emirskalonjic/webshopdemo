@@ -9,9 +9,9 @@ Microservices, \
 Mongoose, \
 MongoDB, \
 GraphQL, \
-RabbitMQ \
+RabbitMQ 
 
-GraphQL examples: \
+GraphQL examples: 
 
 Postman requests (Query): \
 { \
@@ -35,5 +35,5 @@ Postman requests (Mutation): \
             "date": "2022-09-19 10:00:00" \
         } \
     } \
-} \
+} 
 
