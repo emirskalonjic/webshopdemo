@@ -13,6 +13,7 @@ RabbitMQ
 
 GraphQL examples: 
 -----------------  
+Postman request: Method - Post, Body - raw - JSON  
 
 Postman requests (Query):  
 {  
