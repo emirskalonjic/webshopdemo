@@ -1,5 +1,5 @@
 # webshopdemo
-Webshop Demo Project (Product, Cart, Order)\
+Webshop Demo Project (Product, Cart, Order)  
 
 Technologies:  
 Node.js,  
