@@ -24,16 +24,16 @@ Postman requests (Query):
     &emsp;"query": "{ getCarts { uid userId productId product { uid name description price } price } }"  
 }  
 
-Postman requests (Mutation): \
-{ \
-    "query": "mutation CreateCart($input: CartInput) { createCart(input: $input) { uid userId productId price date }}", \
-    "variables": { "input" : { \
-            "uid": 3, \
-            "userId": 1, \
-            "productId": 3, \
-            "price": 300, \
-            "date": "2022-09-19 10:00:00" \
-        } \
-    } \
-} 
+Postman requests (Mutation):  
+{  
+    &emsp;"query": "mutation CreateCart($input: CartInput) { createCart(input: $input) { uid userId productId price date }}",  
+    &emsp;"variables": { "input" : {  
+            &emsp;&emsp;"uid": 3,  
+            &emsp;&emsp;"userId": 1,  
+            &emsp;&emsp;"productId": 3,  
+            &emsp;&emsp;"price": 300,  
+            &emsp;&emsp;"date": "2022-09-19 10:00:00"  
+        }  
+    }  
+}  
 
