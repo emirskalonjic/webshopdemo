@@ -1,28 +1,28 @@
-# webshopdemo\
+# webshopdemo
 Webshop Demo Project (Product, Cart, Order)\
 
-Technologies: \
-Node.js, \
-Typescript, \
-Express, \
-Microservices, \
-Mongoose, \
-MongoDB, \
-GraphQL, \
-RabbitMQ 
+Technologies:  
+Node.js,  
+Typescript,  
+Express,  
+Microservices,  
+Mongoose,  
+MongoDB,  
+GraphQL,  
+RabbitMQ  
 
-GraphQL examples: 
+GraphQL examples:  
 
-Postman requests (Query): \
-{ \
-    "query": "{ getProduct(id: 1) { uid name description price } }" \
-} \
-{ \
-    "query": "{ getProducts { uid name description price } }" \
-} \
-{ \
-    "query": "{ getCarts { uid userId productId product { uid name description price } price } }" \
-} \
+Postman requests (Query):  
+{  
+    "query": "{ getProduct(id: 1) { uid name description price } }"   
+}. 
+{. 
+    "query": "{ getProducts { uid name description price } }". 
+}. 
+{. 
+    "query": "{ getCarts { uid userId productId product { uid name description price } price } }". 
+}.  
 
 Postman requests (Mutation): \
 { \
