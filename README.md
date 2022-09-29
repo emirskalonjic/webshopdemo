@@ -13,7 +13,7 @@ RabbitMQ
 
 GraphQL examples: 
 -----------------  
-Postman request: Method - Post, Body - raw - JSON  
+Postman request settings: Method - Post, Body - raw - JSON  
 
 Postman requests (Query):  
 {  
@@ -26,7 +26,7 @@ Postman requests (Query):
     &emsp;"query": "{ getCarts { uid userId productId product { uid name description price } price } }"  
 }  
 
-Postman requests (Mutation):  
+Postman request (Mutation):  
 {  
     &emsp;"query": "mutation CreateCart($input: CartInput) { createCart(input: $input) { uid userId productId price date }}",  
     &emsp;"variables": { "input" : {  
